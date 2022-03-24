@@ -3,28 +3,31 @@ const async = require("hbs/lib/async");
 const celebrityRouter = express.Router();
 const Celebrity = require("../models/Celebrity.model");
 
-celebrityRouter.get("/celebrity/create", async (req, res, next) => {
+celebrityRouter.get("/", async (req, res, next) => {
+  try {
+    const celebrities = await Celebrity.find();
+    res.render("celebrities/celebrities", { celebrities });
+  } catch (err) {
+    console.log(err);
+    next();
+  }
+});
+
+celebrityRouter.get("/create", async (req, res, next) => {
+  console.log("create celebrities");
   res.render("celebrities/new-celebrity");
 });
 
-celebrityRouter.post("/celebrity", async (req, res, next) => {
-  const createCelebrity = req.body;
-  await Celebrity.create(createCelebrity);
+celebrityRouter.post("/create", async (req, res, next) => {
+  const { name, occupation, catchPhrase } = req.body;
+  try {
+    await Celebrity.create({ name, occupation, catchPhrase });
+    res.redirect("/celebrities/");
+  } catch (err) {
+    console.log(err);
+    res.redirect("/celebrities/");
+  }
 });
-
-// Celebrity.create(req.body)
-//   .then((newCelebrity) => {
-//     console.log("New celeb: ", newCelebrity);
-//   })
-//   .catch((err) => console.log("Err while creating new celebrity: ", err));
-
-// celebrityRouter.get("/", (req, res, next) => {
-//   Celebrity.find()
-//     .then((allCelebrities) => {
-//       res.render("celebrities/celebrities", { allCelebrities });
-//     })
-//     .catch((err) => console.log("Err while getting all celebrities: ", err));
-// });
 
 // all your routes here
 module.exports = celebrityRouter;
